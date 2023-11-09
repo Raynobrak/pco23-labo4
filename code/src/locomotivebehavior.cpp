@@ -24,10 +24,45 @@ void LocomotiveBehavior::run()
     //sharedSection->stopAtStation(loco);
 
     while(true) {
-        // On attend qu'une locomotive arrive sur le contact 1.
-        // Pertinent de faire ça dans les deux threads? Pas sûr...
-        attendre_contact(1);
-        loco.afficherMessage("J'ai atteint le contact 1");
+
+        if(loco.numero() == 7)
+        {
+            //Commence a 34
+
+            //Va a la gare 33
+            attendre_contact(33);
+            sharedSection->stopAtStation(loco);
+
+            //Debut de la section partagée
+            attendre_contact(25);
+            sharedSection->access(loco);
+            diriger_aiguillage(8, DEVIE, 0);
+
+            //Fin de la section partagée
+            attendre_contact(14);
+            sharedSection->leave(loco);
+
+            //Repasse par 34 et recommence
+        }
+        else if(loco.numero() == 42)
+        {
+            //Commence a 31
+
+            //Va a la gare 29
+            attendre_contact(29);
+            sharedSection->stopAtStation(loco);
+
+            //Debut de la section partagée
+            attendre_contact(22);
+            sharedSection->access(loco);
+            diriger_aiguillage(8, TOUT_DROIT, 0);
+
+            //Fin de la section partagée
+            attendre_contact(10);
+            sharedSection->leave(loco);
+
+            //Repasse par 31 et recommence
+        }
     }
 }
 

@@ -30,8 +30,8 @@ public:
      * @brief Synchro Constructeur de la classe qui représente la section partagée.
      * Initialisez vos éventuels attributs ici, sémaphores etc.
      */
-    Synchro() {
-        // TODO
+    Synchro(): sectionPartagee(1), gare(0), mutex(1), nbrGare(0) {
+
     }
 
     /**
@@ -71,10 +71,30 @@ public:
      * @param loco La locomotive qui doit attendre à la gare
      */
     void stopAtStation(Locomotive& loco) override {
+        static const int N_MAX_GARE = 2;
         // TODO
+        loco.arreter();
 
-        // Exemple de message dans la console globale
-        afficher_message(qPrintable(QString("The engine no. %1 arrives at the station.").arg(loco.numero())));
+        mutex.acquire();
+        nbrGare++;
+        if(nbrGare == N_MAX_GARE)
+        {
+            for (int i = 0; i < N_MAX_GARE; i++) {
+                gare.release();
+            }
+            afficher_message("Trains are released");
+            nbrGare = 0;
+            mutex.release();
+        }
+        else
+        {
+            mutex.release();
+            afficher_message(qPrintable(QString("The engine no. %1 arrives at the station.").arg(loco.numero())));
+
+            gare.acquire();
+        }
+
+        loco.demarrer();
     }
 
     /* A vous d'ajouter ce qu'il vous faut */
@@ -82,6 +102,10 @@ public:
 private:
     // Méthodes privées ...
     // Attribut privés ...
+    PcoSemaphore sectionPartagee;
+    PcoSemaphore gare;
+    PcoSemaphore mutex;
+    int nbrGare;
 };
 
 
