@@ -13,6 +13,7 @@
 #include <QDebug>
 
 #include <pcosynchro/pcosemaphore.h>
+#include <pcosynchro/pcothread.h>
 
 #include "locomotive.h"
 #include "ctrain_handler.h"
@@ -30,7 +31,7 @@ public:
      * @brief Synchro Constructeur de la classe qui représente la section partagée.
      * Initialisez vos éventuels attributs ici, sémaphores etc.
      */
-    Synchro(): sectionPartagee(1), gare(0), mutex(1), nbrGare(0) {
+    Synchro(): sectionPartagee(1), gare(0), mutex(1), nbrGare(0), numLocoPrioritaire(0), mutexPrio(1), attenteSectionPartagee(0) {
 
     }
 
@@ -43,6 +44,20 @@ public:
      */
     void access(Locomotive &loco) override {
         // TODO
+        mutexPrio.acquire();
+        if(numLocoPrioritaire != loco.numero())
+        {
+            mutexPrio.release();
+            loco.arreter();
+            attenteSectionPartagee.acquire();
+            loco.demarrer();
+        }
+        else {
+            mutexPrio.release();
+        }
+
+        sectionPartagee.acquire();
+
 
         // Exemple de message dans la console globale
         afficher_message(qPrintable(QString("The engine no. %1 accesses the shared section.").arg(loco.numero())));
@@ -56,7 +71,12 @@ public:
      * @param loco La locomotive qui quitte la section partagée
      */
     void leave(Locomotive& loco) override {
-        // TODO
+        sectionPartagee.release();
+
+        mutexPrio.acquire();
+        if(numLocoPrioritaire == loco.numero())
+            attenteSectionPartagee.release();
+        mutexPrio.release();
 
         // Exemple de message dans la console globale
         afficher_message(qPrintable(QString("The engine no. %1 leaves the shared section.").arg(loco.numero())));
@@ -72,27 +92,33 @@ public:
      */
     void stopAtStation(Locomotive& loco) override {
         static const int N_MAX_GARE = 2;
-        // TODO
         loco.arreter();
+        afficher_message(qPrintable(QString("The engine no. %1 arrives at the station.").arg(loco.numero())));
 
         mutex.acquire();
         nbrGare++;
         if(nbrGare == N_MAX_GARE)
         {
-            for (int i = 0; i < N_MAX_GARE; i++) {
+            mutexPrio.acquire();
+            numLocoPrioritaire = loco.numero();
+            afficher_message(qPrintable(QString("The engine no. %1 has the priority.").arg(numLocoPrioritaire)));
+            mutexPrio.release();
+
+            for (int i = 1; i < N_MAX_GARE; i++) {
                 gare.release();
             }
             afficher_message("Trains are released");
+
             nbrGare = 0;
             mutex.release();
         }
         else
         {
             mutex.release();
-            afficher_message(qPrintable(QString("The engine no. %1 arrives at the station.").arg(loco.numero())));
-
             gare.acquire();
         }
+
+        PcoThread::usleep(1*1000*1000);
 
         loco.demarrer();
     }
@@ -106,6 +132,10 @@ private:
     PcoSemaphore gare;
     PcoSemaphore mutex;
     int nbrGare;
+
+    int numLocoPrioritaire;
+    PcoSemaphore mutexPrio;
+    PcoSemaphore attenteSectionPartagee;
 };
 
 
