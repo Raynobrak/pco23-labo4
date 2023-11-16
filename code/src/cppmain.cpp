@@ -25,9 +25,10 @@ static Locomotive locoB(42 /* Numéro (pour commande trains sur maquette réelle
 //Arret d'urgence
 void emergency_stop()
 {
-    // TODO
-
     afficher_message("\nSTOP!");
+
+    locoA.arreter();
+    locoB.arreter();
 }
 
 

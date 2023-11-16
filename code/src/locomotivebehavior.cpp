@@ -28,15 +28,19 @@ void LocomotiveBehavior::run()
         if(loco.numero() == 7)
         {
             //Commence a 34
+            attendre_contact(34);
+            loco.fixerVitesse(loco.vitesse()/2);
 
             //Va a la gare 33
             attendre_contact(33);
             sharedSection->stopAtStation(loco);
 
+
             //Debut de la section partagée
             attendre_contact(25);
             sharedSection->access(loco);
             diriger_aiguillage(8, DEVIE, 0);
+            loco.fixerVitesse(loco.vitesse()*2);
 
             //Fin de la section partagée
             attendre_contact(14);
@@ -48,14 +52,20 @@ void LocomotiveBehavior::run()
         {
             //Commence a 31
 
+            //Va a la gare 30
+            attendre_contact(30);
+            loco.fixerVitesse(loco.vitesse()/2);
+
             //Va a la gare 29
             attendre_contact(29);
             sharedSection->stopAtStation(loco);
+
 
             //Debut de la section partagée
             attendre_contact(22);
             sharedSection->access(loco);
             diriger_aiguillage(8, TOUT_DROIT, 0);
+            loco.fixerVitesse(loco.vitesse()*2);
 
             //Fin de la section partagée
             attendre_contact(10);
