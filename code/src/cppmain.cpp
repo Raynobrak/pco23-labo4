@@ -18,14 +18,17 @@
 // Laissez les numéros des locos à 0 et 1 pour ce laboratoire
 
 // Locomotive A
-static Locomotive locoA(7 /* Numéro (pour commande trains sur maquette réelle) */, 10 /* Vitesse */);
+static Locomotive locoA(NUM_LOCO_A /* Numéro (pour commande trains sur maquette réelle) */, 10 /* Vitesse */);
 // Locomotive B
-static Locomotive locoB(42 /* Numéro (pour commande trains sur maquette réelle) */, 12 /* Vitesse */);
+static Locomotive locoB(NUM_LOCO_B /* Numéro (pour commande trains sur maquette réelle) */, 12 /* Vitesse */);
 
 //Arret d'urgence
 void emergency_stop()
 {
     afficher_message("\nSTOP!");
+
+    locoA.fixerVitesse(0);
+    locoB.fixerVitesse(0);
 
     locoA.arreter();
     locoB.arreter();
@@ -104,9 +107,9 @@ int cmain()
     std::shared_ptr<SynchroInterface> sharedSection = std::make_shared<Synchro>();
 
     // Création du thread pour la loco 0
-    std::unique_ptr<Launchable> locoBehaveA = std::make_unique<LocomotiveBehavior>(locoA, sharedSection /*, autres paramètres ...*/);
+    auto locoBehaveA = std::make_unique<LocomotiveBehavior>(locoA, sharedSection /*, autres paramètres ...*/);
     // Création du thread pour la loco 1
-    std::unique_ptr<Launchable> locoBehaveB = std::make_unique<LocomotiveBehavior>(locoB, sharedSection /*, autres paramètres ...*/);
+    auto locoBehaveB = std::make_unique<LocomotiveBehavior>(locoB, sharedSection /*, autres paramètres ...*/);
 
     // Lanchement des threads
     afficher_message(qPrintable(QString("Lancement thread loco A (numéro %1)").arg(locoA.numero())));

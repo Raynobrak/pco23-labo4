@@ -43,7 +43,6 @@ public:
      * @param loco La locomotive qui essaie accéder à la section partagée
      */
     void access(Locomotive &loco) override {
-        // TODO
         mutexPrio.acquire();
         if(numLocoPrioritaire != loco.numero())
         {
@@ -118,7 +117,7 @@ public:
             gare.acquire();
         }
 
-        PcoThread::usleep(1*1000*1000);
+        PcoThread::usleep(5*1000*1000);
 
         loco.demarrer();
     }

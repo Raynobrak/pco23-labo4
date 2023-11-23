@@ -14,6 +14,10 @@
 #include "launchable.h"
 #include "synchrointerface.h"
 
+constexpr int NUM_LOCO_A = 7;
+constexpr int NUM_LOCO_B = 42;
+constexpr int FACTEUR_REDUCTION_VITESSE = 2;
+
 /**
  * @brief La classe LocomotiveBehavior représente le comportement d'une locomotive
  */
