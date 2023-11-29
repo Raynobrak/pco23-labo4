@@ -31,7 +31,7 @@ public:
      * @brief Synchro Constructeur de la classe qui représente la section partagée.
      * Initialisez vos éventuels attributs ici, sémaphores etc.
      */
-    Synchro(): sectionPartagee(1), gare(0), mutex(1), nbrGare(0), numLocoPrioritaire(0), mutexPrio(1), attenteSectionPartagee(0) {
+    Synchro(): sectionPartagee(1), gareSem(0), mutexGare(1), nbrGare(0), numLocoPrioritaire(0), mutexPrio(1), attenteSectionPartagee(0) {
 
     }
 
@@ -94,7 +94,7 @@ public:
         loco.arreter();
         afficher_message(qPrintable(QString("The engine no. %1 arrives at the station.").arg(loco.numero())));
 
-        mutex.acquire();
+        mutexGare.acquire();
         nbrGare++;
         if(nbrGare == N_MAX_GARE)
         {
@@ -104,17 +104,17 @@ public:
             mutexPrio.release();
 
             for (int i = 1; i < N_MAX_GARE; i++) {
-                gare.release();
+                gareSem.release();
             }
             afficher_message("Trains are released");
 
             nbrGare = 0;
-            mutex.release();
+            mutexGare.release();
         }
         else
         {
-            mutex.release();
-            gare.acquire();
+            mutexGare.release();
+            gareSem.acquire();
         }
 
         PcoThread::usleep(5*1000*1000);
@@ -128,8 +128,8 @@ private:
     // Méthodes privées ...
     // Attribut privés ...
     PcoSemaphore sectionPartagee;
-    PcoSemaphore gare;
-    PcoSemaphore mutex;
+    PcoSemaphore gareSem;
+    PcoSemaphore mutexGare;
     int nbrGare;
 
     int numLocoPrioritaire;
